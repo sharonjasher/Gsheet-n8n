@@ -1,0 +1,211 @@
+{
+  "name": "Gsheet Automation",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        16
+      ],
+      "id": "14d3fa4b-8ab1-4b1a-98cc-bfd79ba7ed54",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1504jJycyPgyjw7uYwL7M3L7zT90R4yezmHnpbVRdaeY",
+          "mode": "list",
+          "cachedResultName": "Review Googlesheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1504jJycyPgyjw7uYwL7M3L7zT90R4yezmHnpbVRdaeY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "1.8.2025",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1504jJycyPgyjw7uYwL7M3L7zT90R4yezmHnpbVRdaeY/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -96,
+        16
+      ],
+      "id": "3dda1dfb-bdbb-4a5d-865c-09e45d26838a",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X4613HWp9oG0olsO",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are an expert in analyzing the feedback and identifying the sentiment. \nyou should give output only either one of below:\npositive\nneutral\nneagtive\n\noutput should only one word.\nexample\npositive",
+              "role": "system"
+            },
+            {
+              "content": "=Analyze the sentiment of this review. Respond with only one word: Positive, Neutral, or Negative.\n\nReview: \n{{ $json.Review }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        112,
+        16
+      ],
+      "id": "9093373d-8923-4f61-855a-f1bea9f08af7",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "mwBSN5tOdzw5chSd",
+          "name": "Sharon API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1504jJycyPgyjw7uYwL7M3L7zT90R4yezmHnpbVRdaeY",
+          "mode": "list",
+          "cachedResultName": "Review Googlesheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1504jJycyPgyjw7uYwL7M3L7zT90R4yezmHnpbVRdaeY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "1.8.2025",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1504jJycyPgyjw7uYwL7M3L7zT90R4yezmHnpbVRdaeY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Get row(s) in sheet').item.json.Name }}",
+            "Sentimental Analysis": "={{ $('Message a model').item.json.message.content }}\n\n",
+            "Review": "={{ $('Get row(s) in sheet').item.json.Review }}"
+          },
+          "matchingColumns": [
+            "Name"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Review",
+              "displayName": "Review",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Sentimental Analysis",
+              "displayName": "Sentimental Analysis",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        464,
+        16
+      ],
+      "id": "1c54c9fc-7f16-4b88-a6d5-f1b645b4b350",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X4613HWp9oG0olsO",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "88790e61-d789-4e79-aa7c-d479b4cc83a3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "190fb5071ca3fe86f93b972bc98e47e4fd0322cb80f0739d20c765c8fdaaa2d2"
+  },
+  "id": "SHMWyKG0mgy2yBuT",
+  "tags": []
+}
